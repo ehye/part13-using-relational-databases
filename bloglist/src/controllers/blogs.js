@@ -24,7 +24,6 @@ blogsRouter.get('/:id', blogFinder, async (request, response) => {
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
   // const user = request.user
-
   const blog = await Blog.create({
     title: body.title,
     author: body.author,
@@ -51,6 +50,12 @@ blogsRouter.post('/:id/comments', async (request, response) => {
 })
 
 blogsRouter.put('/:id', async (request, response) => {
+  if (
+    typeof request.body.likes === 'string' ||
+    request.body.likes instanceof String
+  )
+    throw Error('ValidationError')
+
   const blog = await Blog.findByPk(request.params.id)
   if (blog) {
     blog.likes = request.body.likes
