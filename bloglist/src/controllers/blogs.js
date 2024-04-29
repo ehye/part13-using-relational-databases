@@ -13,7 +13,7 @@ blogsRouter.get('/', blogFinder, async (request, response) => {
   response.json(blogs)
 })
 
-blogsRouter.get('/:id',blogFinder, async (request, response) => {
+blogsRouter.get('/:id', blogFinder, async (request, response) => {
   if (request.blog) {
     response.json(request.blog)
   } else {
@@ -51,18 +51,14 @@ blogsRouter.post('/:id/comments', async (request, response) => {
 })
 
 blogsRouter.put('/:id', async (request, response) => {
-  const blog = {
-    title: request.body.title,
-    author: request.body.author,
-    url: request.body.url,
-    likes: request.body.likes,
+  const blog = await Blog.findByPk(request.params.id)
+  if (blog) {
+    blog.likes = request.body.likes
+    const result = await blog.save()
+    response.json(result)
+  } else {
+    response.status(404).end()
   }
-  const updateResult = await Blog.findByIdAndUpdate(request.params.id, blog, {
-    new: true,
-    runValidators: true,
-    context: 'query',
-  })
-  response.json(updateResult)
 })
 
 blogsRouter.delete('/:id', blogFinder, async (request, response) => {
