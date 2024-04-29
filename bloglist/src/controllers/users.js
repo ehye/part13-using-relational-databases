@@ -1,10 +1,12 @@
 const usersRouter = require('express').Router()
 const { User, Blog } = require('../models/')
+const { userExtractor } = require('../utils/middleware')
 
-usersRouter.get('/', async (request, response) => {
+usersRouter.get('/', userExtractor, async (request, response) => {
   const users = await User.findAll({
     include: {
       model: Blog,
+      attributes: { exclude: ['userId'] },
     },
   })
   response.json(users)

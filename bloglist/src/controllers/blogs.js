@@ -12,8 +12,17 @@ const blogFinder = async (request, res, next) => {
   next()
 }
 
-blogsRouter.get('/', blogFinder, async (request, response) => {
-  const blogs = await Blog.findAll()
+blogsRouter.get('/', blogFinder, userExtractor, async (request, response) => {
+  const blogs = await Blog.findAll({
+    attributes: { exclude: ['userId'] },
+    include: {
+      model: User,
+      attributes: ['name'],
+    },
+    where: {
+      userId: request.user.id,
+    },
+  })
   response.json(blogs)
 })
 
