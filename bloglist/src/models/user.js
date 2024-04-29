@@ -1,40 +1,32 @@
-const mongoose = require('mongoose')
-const uniqueValidator = require('mongoose-unique-validator')
+const { Model, DataTypes } = require('sequelize')
+const { sequelize } = require('../utils/db')
 
-const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    minLength: 3,
-    required: true,
-    unique: true,
-  },
-  passwordHash: {
-    type: String,
-    minLength: 3,
-    required: true,
-  },
-  name: {
-    type: String,
-    minLength: 3,
-  },
-  blogs: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Blog',
+class User extends Model {}
+
+User.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
-  ],
-})
-
-userSchema.plugin(uniqueValidator)
-
-userSchema.set('toJSON', {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString()
-    delete returnedObject._id
-    delete returnedObject.__v
-    // the passwordHash should not be revealed
-    delete returnedObject.passwordHash
+    username: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
-})
+  {
+    sequelize,
+    underscored: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+    modelName: 'user',
+  }
+)
 
-module.exports = mongoose.model('User', userSchema)
+module.exports = User

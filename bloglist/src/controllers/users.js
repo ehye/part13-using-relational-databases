@@ -1,19 +1,13 @@
 const usersRouter = require('express').Router()
-const bcrypt = require('bcrypt')
-const User = require('../models/user')
+const { User } = require('../models/')
 
 usersRouter.get('/', async (request, response) => {
-  const users = await User.find({}).populate('blogs', {
-    title: 1,
-    author: 1,
-    url: 1,
-    id: 1,
-  })
+  const users = await User.findAll()
   response.json(users)
 })
 
 usersRouter.get('/:id', async (request, response) => {
-  var user = await User.findById(request.params.id)
+  const user = await User.findByPk(request.params.id)
   if (user) {
     response.json(user)
   } else {
@@ -21,21 +15,27 @@ usersRouter.get('/:id', async (request, response) => {
   }
 })
 
-usersRouter.post('/', async (request, response) => {
-  const { username, name, password } = request.body
-
-  const saltRounds = 10
-  const passwordHash = await bcrypt.hash(password, saltRounds)
-
-  const user = new User({
-    username,
-    name,
-    passwordHash,
+usersRouter.put('/:username', async (request, response) => {
+  const user = await User.findOne({
+    where: {
+      username: request.params.username,
+    },
   })
+  if (user) {
+    user.username = request.body.username
+    const result = await user.save()
+    response.json(result)
+  } else {
+    response.status(404).end()
+  }
+})
 
-  const savedUser = await user.save()
+usersRouter.post('/', async (request, response) => {
+  const { username, name } = request.body
 
-  response.status(201).json(savedUser)
+  const user = await User.create({ username, name })
+
+  response.status(201).json(user)
 })
 
 module.exports = usersRouter

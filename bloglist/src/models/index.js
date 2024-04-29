@@ -1,7 +1,10 @@
 const Blog = require('./blog')
+const User = require('./user')
 
-Blog.sync()
+Blog.sync({ alter: true })
+User.sync({ alter: true, force: true })
 
 module.exports = {
-  Blog
+  Blog,
+  User,
 }
