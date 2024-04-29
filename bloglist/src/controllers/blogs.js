@@ -1,17 +1,21 @@
 const blogsRouter = require('express').Router()
-const Blog = require('../models/blog')
-// const User = require('../models/user')
-const { userExtractor } = require('../utils/middleware')
+// const { userExtractor } = require('../utils/middleware')
 
-blogsRouter.get('/', async (request, response) => {
+const { Blog } = require('../models/')
+
+const blogFinder = async (request, res, next) => {
+  request.blog = await Blog.findByPk(request.params.id)
+  next()
+}
+
+blogsRouter.get('/', blogFinder, async (request, response) => {
   const blogs = await Blog.findAll()
   response.json(blogs)
 })
 
-blogsRouter.get('/:id', async (request, response) => {
-  const blog = await Blog.findByPk(request.params.id)
-  if (blog) {
-    response.json(blog)
+blogsRouter.get('/:id',blogFinder, async (request, response) => {
+  if (request.blog) {
+    response.json(request.blog)
   } else {
     response.status(404).end()
   }
@@ -61,9 +65,11 @@ blogsRouter.put('/:id', async (request, response) => {
   response.json(updateResult)
 })
 
-blogsRouter.delete('/:id', async (request, response) => {
-  const blog = await Blog.findByPk(request.params.id)
-  await blog.destroy()
+blogsRouter.delete('/:id', blogFinder, async (request, response) => {
+  if (request.blog) {
+    await request.blog.destroy()
+  }
+  response.status(204).end()
 
   // const user = request.user
 

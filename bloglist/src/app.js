@@ -1,7 +1,6 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const { Sequelize } = require('sequelize')
 require('express-async-errors')
 
 const config = require('./utils/config')
