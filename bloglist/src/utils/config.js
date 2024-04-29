@@ -4,13 +4,13 @@ const PORT = process.env.PORT | 3003
 
 const SECRET = process.env.SECRET || 'secret'
 
-const DATABASE_URI =
+const DATABASE_URL =
   process.env.NODE_ENV === 'test'
-    ? process.env.TEST_MONGODB_URI
+    ? process.env.TEST_MONGODB_URL
     : process.env.DATABASE_URL
 
 module.exports = {
-  DATABASE_URI,
+  DATABASE_URL,
   PORT,
   SECRET,
 }
