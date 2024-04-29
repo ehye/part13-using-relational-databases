@@ -4,7 +4,11 @@ const { userExtractor } = require('../utils/middleware')
 const { Blog, User } = require('../models/')
 
 const blogFinder = async (request, res, next) => {
-  request.blog = await Blog.findByPk(request.params.id)
+  request.blog = await Blog.findByPk(request.params.id, {
+    include: {
+      model: User,
+    },
+  })
   next()
 }
 
@@ -63,24 +67,31 @@ blogsRouter.put('/:id', async (request, response) => {
   }
 })
 
-blogsRouter.delete('/:id', blogFinder, async (request, response) => {
-  if (request.blog) {
+blogsRouter.delete(
+  '/:id',
+  blogFinder,
+  userExtractor,
+  async (request, response) => {
+    if (
+      !request.user ||
+      request.blog.user?.id.toString() !== request.user.id.toString()
+    ) {
+      return response.status(401).json({ error: 'operation not permitted' })
+    }
+
+    const user = await User.findByPk(request.user.id, {
+      include: {
+        model: Blog,
+      },
+    })
+
+    user.blogs = user.blogs.filter((b) => b.id !== request.blog.id)
+
+    await user.save()
     await request.blog.destroy()
+
+    response.status(204).end()
   }
-  response.status(204).end()
-
-  // const user = request.user
-
-  // if (!user || blog.user._id.toString() !== user.id.toString()) {
-  //   return response.status(401).json({ error: 'operation not permitted' })
-  // }
-
-  // user.blogs = user.blogs.filter(b => b.toString() !== blog.id.toString())
-
-  // await user.save()
-  // await Blog.findByIdAndDelete(blog.id)
-
-  response.status(204).end()
-})
+)
 
 module.exports = blogsRouter
