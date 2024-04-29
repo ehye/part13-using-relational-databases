@@ -4,16 +4,12 @@ const Blog = require('../models/blog')
 const { userExtractor } = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({}).populate('user', {
-    username: 1,
-    name: 1,
-    id: 1,
-  })
+  const blogs = await Blog.findAll()
   response.json(blogs)
 })
 
 blogsRouter.get('/:id', async (request, response) => {
-  const blog = await Blog.findById(request.params.id)
+  const blog = await Blog.findByPk(request.params.id)
   if (blog) {
     response.json(blog)
   } else {
@@ -21,22 +17,22 @@ blogsRouter.get('/:id', async (request, response) => {
   }
 })
 
-blogsRouter.post('/', userExtractor, async (request, response) => {
+blogsRouter.post('/', async (request, response) => {
   const body = request.body
-  const user = request.user
+  // const user = request.user
 
-  const blog = new Blog({
+  const blog = await Blog.create({
     title: body.title,
     author: body.author,
     url: body.url,
     likes: body.likes === undefined ? 0 : body.likes,
-    user: user.id,
+    // user: user.id,
   })
 
-  const result = await blog.save()
-  user.blogs = user.blogs.concat(result._id)
-  await user.save()
-  response.status(201).json(result)
+  // const result = await blog.save()
+  // user.blogs = user.blogs.concat(result._id)
+  // await user.save()
+  response.status(201).json(blog)
 })
 
 blogsRouter.post('/:id/comments', async (request, response) => {
@@ -65,19 +61,20 @@ blogsRouter.put('/:id', async (request, response) => {
   response.json(updateResult)
 })
 
-blogsRouter.delete('/:id', userExtractor, async (request, response) => {
-  var blog = await Blog.findById(request.params.id)
+blogsRouter.delete('/:id', async (request, response) => {
+  const blog = await Blog.findByPk(request.params.id)
+  await blog.destroy()
 
-  const user = request.user
+  // const user = request.user
 
-  if (!user || blog.user._id.toString() !== user.id.toString()) {
-    return response.status(401).json({ error: 'operation not permitted' })
-  }
+  // if (!user || blog.user._id.toString() !== user.id.toString()) {
+  //   return response.status(401).json({ error: 'operation not permitted' })
+  // }
 
-  user.blogs = user.blogs.filter(b => b.toString() !== blog.id.toString())
+  // user.blogs = user.blogs.filter(b => b.toString() !== blog.id.toString())
 
-  await user.save()
-  await Blog.findByIdAndDelete(blog.id)
+  // await user.save()
+  // await Blog.findByIdAndDelete(blog.id)
 
   response.status(204).end()
 })
