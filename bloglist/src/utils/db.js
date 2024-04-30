@@ -15,10 +15,10 @@ const migrator = new Umzug({
 })
 
 const runMigrations = async () => {
-  // const m = await migrator.down()
-  // console.log('Migrations down:', {
-  //   files: m.map((mig) => mig.name),
-  // })
+  const m = await migrator.down()
+  console.log('Migrations down:', {
+    files: m.map((mig) => mig.name),
+  })
 
   const migrations = await migrator.up()
   console.log('Migrations up to date', {
@@ -26,10 +26,22 @@ const runMigrations = async () => {
   })
 }
 
+const createSeed = async () => {
+  return sequelize.getQueryInterface().bulkInsert('users', [
+    {
+      username: 'admin@root.com',
+      name: 'admin',
+      created_at: new Date(),
+      updated_at: new Date(),
+    },
+  ])
+}
+
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate()
     await runMigrations()
+    await createSeed()
     logger.info('connected to the database')
   } catch (err) {
     logger.info('failed to connect to the database')

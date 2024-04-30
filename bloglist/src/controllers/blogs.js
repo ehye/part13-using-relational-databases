@@ -50,10 +50,20 @@ blogsRouter.get('/:id', blogFinder, async (request, response) => {
 blogsRouter.post('/', userExtractor, async (request, response) => {
   const body = request.body
   const user = request.user
+
+  if (body.year && body.year > new Date().getFullYear()) {
+    return response.status(401).json({
+      error: 'year is greater than the current year',
+    })
+  } else {
+    body.year = 1991
+  }
+
   const blog = await Blog.create({
     title: body.title,
     author: body.author,
     url: body.url,
+    year: body.year,
     likes: body.likes === undefined ? 0 : body.likes,
     userId: user.id,
   })
