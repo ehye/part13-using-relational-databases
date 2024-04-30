@@ -2,6 +2,7 @@ const blogsRouter = require('express').Router()
 const { Op } = require('sequelize')
 const { userExtractor } = require('../utils/middleware')
 const { Blog, User } = require('../models/')
+const { sequelize } = require('../utils/db')
 
 const blogFinder = async (request, res, next) => {
   request.blog = await Blog.findByPk(request.params.id, {
@@ -34,6 +35,7 @@ blogsRouter.get('/', blogFinder, userExtractor, async (request, response) => {
         },
       ],
     },
+    order: [['likes', 'DESC']],
   })
   response.json(blogs)
 })
