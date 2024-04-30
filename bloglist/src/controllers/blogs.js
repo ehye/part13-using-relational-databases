@@ -21,9 +21,18 @@ blogsRouter.get('/', blogFinder, userExtractor, async (request, response) => {
     },
     where: {
       userId: request.user.id,
-      title: {
-        [Op.iLike]: `%${request.query.search ?? ''}%`,
-      },
+      [Op.or]: [
+        {
+          title: {
+            [Op.iLike]: `%${request.query.search ?? ''}%`,
+          },
+        },
+        {
+          author: {
+            [Op.iLike]: `%${request.query.search ?? ''}%`,
+          },
+        },
+      ],
     },
   })
   response.json(blogs)
