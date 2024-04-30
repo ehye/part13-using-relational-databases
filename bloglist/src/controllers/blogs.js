@@ -1,6 +1,6 @@
 const blogsRouter = require('express').Router()
+const { Op } = require('sequelize')
 const { userExtractor } = require('../utils/middleware')
-
 const { Blog, User } = require('../models/')
 
 const blogFinder = async (request, res, next) => {
@@ -21,6 +21,9 @@ blogsRouter.get('/', blogFinder, userExtractor, async (request, response) => {
     },
     where: {
       userId: request.user.id,
+      title: {
+        [Op.iLike]: `%${request.query.search ?? ''}%`,
+      },
     },
   })
   response.json(blogs)
