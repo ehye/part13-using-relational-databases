@@ -31,12 +31,17 @@ Blog.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    createdAt: {
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: { model: 'users', key: 'id' },
+    },
+    created_at: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
     },
-    updatedAt: {
+    updated_at: {
       type: DataTypes.DATE,
       allowNull: true,
     },
@@ -46,7 +51,7 @@ Blog.init(
     underscored: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
-    modelName: 'blog',
+    modelName: 'blogs',
   }
 )
 

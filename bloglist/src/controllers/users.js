@@ -1,19 +1,22 @@
 const usersRouter = require('express').Router()
-const { User, Blog } = require('../models/')
+const { User, Blog, ReadingList } = require('../models/')
 const { userExtractor } = require('../utils/middleware')
 
-usersRouter.get('/', userExtractor, async (request, response) => {
-  const users = await User.findAll({
-    include: {
-      model: Blog,
-      attributes: { exclude: ['userId'] },
-    },
-  })
+usersRouter.get('/', async (request, response) => {
+  const users = await User.findAll()
   response.json(users)
 })
 
 usersRouter.get('/:id', async (request, response) => {
-  const user = await User.findByPk(request.params.id)
+  const user = await User.findByPk(request.params.id, {
+    attributes: ['name', 'username'],
+    include: {
+      model: Blog,
+      as: 'readings',
+      attributes: ['id', 'url', 'title', 'author', 'likes', 'year'],
+    },
+  })
+
   if (user) {
     response.json(user)
   } else {

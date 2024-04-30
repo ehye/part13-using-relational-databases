@@ -7,6 +7,7 @@ loginRouter.post('/', async (request, response) => {
   const body = request.body
 
   const user = await User.findOne({
+    attributes: ['id', 'username', 'name'],
     where: {
       username: body.username,
     },

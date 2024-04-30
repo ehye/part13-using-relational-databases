@@ -15,10 +15,8 @@ const migrator = new Umzug({
 })
 
 const runMigrations = async () => {
-  const m = await migrator.down()
-  console.log('Migrations down:', {
-    files: m.map((mig) => mig.name),
-  })
+  // await sequelize.drop({ cascade: true })
+  // console.log('All tables dropped!')
 
   const migrations = await migrator.up()
   console.log('Migrations up to date', {
@@ -29,7 +27,6 @@ const runMigrations = async () => {
 const createSeed = async () => {
   await sequelize.getQueryInterface().bulkInsert('users', [
     {
-      id: 1,
       username: 'admin@root.com',
       name: 'admin',
       created_at: new Date(),
@@ -82,7 +79,7 @@ const createSeed = async () => {
       created_at: new Date(),
     },
   ])
-  await sequelize.getQueryInterface().bulkInsert('readingList', [
+  await sequelize.getQueryInterface().bulkInsert('reading_list', [
     {
       user_id: '1',
       blog_id: '1',
@@ -94,11 +91,12 @@ const createSeed = async () => {
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate()
-    await runMigrations()
-    await createSeed()
+    // await runMigrations()
+    // await createSeed()
     logger.info('connected to the database')
   } catch (err) {
-    logger.info('failed to connect to the database')
+    logger.error('failed to connect to the database')
+    logger.error(err)
     return process.exit(1)
   }
 

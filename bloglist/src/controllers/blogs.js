@@ -12,15 +12,15 @@ const blogFinder = async (request, res, next) => {
   next()
 }
 
-blogsRouter.get('/', blogFinder, userExtractor, async (request, response) => {
+blogsRouter.get('/', userExtractor, async (request, response) => {
   const blogs = await Blog.findAll({
-    attributes: { exclude: ['userId'] },
+    attributes: { exclude: ['user_id'] },
     include: {
       model: User,
       attributes: ['name'],
     },
     where: {
-      userId: request.user.id,
+      user_id: request.user.id,
       [Op.or]: [
         {
           title: {
@@ -65,7 +65,7 @@ blogsRouter.post('/', userExtractor, async (request, response) => {
     url: body.url,
     year: body.year,
     likes: body.likes === undefined ? 0 : body.likes,
-    userId: user.id,
+    user_id: user.id,
   })
 
   response.status(201).json(blog)
@@ -82,22 +82,27 @@ blogsRouter.post('/:id/comments', async (request, response) => {
   response.json(updateResult)
 })
 
-blogsRouter.put('/:id', async (request, response) => {
-  if (
-    typeof request.body.likes === 'string' ||
-    request.body.likes instanceof String
-  )
-    throw Error('ValidationError')
+blogsRouter.put(
+  '/:id',
+  blogFinder,
+  userExtractor,
+  async (request, response) => {
+    if (
+      typeof request.body.likes === 'string' ||
+      request.body.likes instanceof String
+    )
+      throw Error('ValidationError')
 
-  const blog = await Blog.findByPk(request.params.id)
-  if (blog) {
-    blog.likes = request.body.likes
-    const result = await blog.save()
-    response.json(result)
-  } else {
-    response.status(404).end()
+    const blog = await Blog.findByPk(request.params.id)
+    if (blog) {
+      blog.likes = request.body.likes
+      const result = await blog.save()
+      response.json(result)
+    } else {
+      response.status(404).end()
+    }
   }
-})
+)
 
 blogsRouter.delete(
   '/:id',
