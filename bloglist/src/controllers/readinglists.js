@@ -6,6 +6,7 @@ readingListsRouter.post('/', async (request, response) => {
   const readingList = await ReadingList.create({
     user_id: request.body.userId,
     blog_id: request.body.blogId,
+    is_read: false,
   })
 
   response.status(200).send(readingList)

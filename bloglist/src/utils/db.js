@@ -82,15 +82,20 @@ const createSeed = async () => {
       blog_id: '1',
       created_at: new Date(),
     },
+    {
+      user_id: '1',
+      blog_id: '2',
+      created_at: new Date(),
+    },
   ])
 }
 
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate()
-    // await sequelize.drop({ cascade: true })
-    // await runMigrations()
-    // await createSeed()
+    await sequelize.drop({ cascade: true })
+    await runMigrations()
+    await createSeed()
     logger.info('connected to the database')
   } catch (err) {
     logger.error('failed to connect to the database')

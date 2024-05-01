@@ -1,4 +1,5 @@
 const usersRouter = require('express').Router()
+const { Op } = require('sequelize')
 const { User, Blog } = require('../models/')
 const { userExtractor } = require('../utils/middleware')
 
@@ -8,20 +9,26 @@ usersRouter.get('/', async (request, response) => {
 })
 
 usersRouter.get('/:id', userExtractor, async (request, response) => {
-  const user = await User.findByPk(request.params.id, {
+  const options = {
     attributes: ['name', 'username'],
-    include: [
-      {
-        model: Blog,
-        as: 'readings',
-        attributes: {
-          include: ['id', 'url', 'title', 'author', 'likes', 'year'],
-          exclude: ['user_id', 'created_at', 'updated_at'],
-        },
-        through: { as: 'readinglists', attributes: ['is_read', 'id'] },
+    include: {
+      model: Blog,
+      as: 'readings',
+      attributes: {
+        include: ['id', 'url', 'title', 'author', 'likes', 'year'],
+        exclude: ['user_id', 'created_at', 'updated_at'],
       },
-    ],
-  })
+      through: {
+        as: 'readinglists',
+        attributes: ['is_read', 'id'],
+      },
+    },
+  }
+  if (request.query.read !== undefined) {
+    options.include.through.where = { is_read: { [Op.eq]: request.query.read } }
+  }
+
+  const user = await User.findByPk(request.params.id, options)
 
   if (user) {
     response.json(user)
