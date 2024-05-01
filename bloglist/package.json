@@ -7,7 +7,6 @@
     "start": "cross-env NODE_ENV=production node index.js",
     "dev": "cross-env NODE_ENV=development nodemon index.js",
     "dev:init": "cross-env NODE_ENV=development node index.js -- init",
-    "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
     "start:test": "cross-env NODE_ENV=test nodemon index.js",
     "lint": "eslint ."
   },
@@ -23,20 +22,12 @@
     "express-async-errors": "^3.1.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
-    "mongoose": "8.1.1",
-    "mongoose-unique-validator": "^5.0.0",
     "pg": "^8.11.5",
     "sequelize": "^6.37.3",
     "umzug": "^3.8.0"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
-    "jest": "^29.7.0",
-    "nodemon": "^3.1.0",
-    "supertest": "^6.3.4"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "globalTeardown": "./src/tests/teardown.js"
+    "nodemon": "^3.1.0"
   }
 }

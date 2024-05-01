@@ -73,17 +73,6 @@ blogsRouter.post('/', userExtractor, async (request, response) => {
   response.status(201).json(blog)
 })
 
-blogsRouter.post('/:id/comments', async (request, response) => {
-  let blog = await Blog.findById(request.params.id)
-  blog.comments.push(request.body.comment)
-  const updateResult = await Blog.findByIdAndUpdate(request.params.id, blog, {
-    new: true,
-    runValidators: true,
-    context: 'query',
-  })
-  response.json(updateResult)
-})
-
 blogsRouter.put('/:id', blogFinder, userExtractor, async (request, response) => {
   if (typeof request.body.likes === 'string' || request.body.likes instanceof String) throw Error('ValidationError')
 
