@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize')
-const { DATABASE_URL } = require('./config')
+const { DATABASE_URL, ARGV } = require('./config')
 const logger = require('./logger')
 const { Umzug, SequelizeStorage } = require('umzug')
 
@@ -26,6 +26,13 @@ const createSeed = async () => {
     {
       username: 'admin@root.com',
       name: 'admin',
+      disabled: false,
+      created_at: new Date(),
+    },
+    {
+      username: 'su@root.com',
+      name: 'su',
+      disabled: true,
       created_at: new Date(),
     },
   ])
@@ -93,17 +100,20 @@ const createSeed = async () => {
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate()
-    await sequelize.drop({ cascade: true })
-    await runMigrations()
-    await createSeed()
+    if (ARGV[3] === 'init') {
+      await sequelize.drop({ cascade: true })
+      await runMigrations()
+      await createSeed()
+      logger.info('🎉 init database succeed')
+      sequelize.close()
+      return process.exit(0)
+    }
     logger.info('connected to the database')
   } catch (err) {
     logger.error('failed to connect to the database')
     logger.error(err)
     return process.exit(1)
   }
-
-  return null
 }
 
 module.exports = { connectToDatabase, sequelize }

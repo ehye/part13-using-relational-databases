@@ -84,53 +84,36 @@ blogsRouter.post('/:id/comments', async (request, response) => {
   response.json(updateResult)
 })
 
-blogsRouter.put(
-  '/:id',
-  blogFinder,
-  userExtractor,
-  async (request, response) => {
-    if (
-      typeof request.body.likes === 'string' ||
-      request.body.likes instanceof String
-    )
-      throw Error('ValidationError')
+blogsRouter.put('/:id', blogFinder, userExtractor, async (request, response) => {
+  if (typeof request.body.likes === 'string' || request.body.likes instanceof String) throw Error('ValidationError')
 
-    const blog = await Blog.findByPk(request.params.id)
-    if (blog) {
-      blog.likes = request.body.likes
-      const result = await blog.save()
-      response.json(result)
-    } else {
-      response.status(404).end()
-    }
+  const blog = await Blog.findByPk(request.params.id)
+  if (blog) {
+    blog.likes = request.body.likes
+    const result = await blog.save()
+    response.json(result)
+  } else {
+    response.status(404).end()
   }
-)
+})
 
-blogsRouter.delete(
-  '/:id',
-  blogFinder,
-  userExtractor,
-  async (request, response) => {
-    if (
-      !request.user ||
-      request.blog.user?.id.toString() !== request.user.id.toString()
-    ) {
-      return response.status(401).json({ error: 'operation not permitted' })
-    }
-
-    const user = await User.findByPk(request.user.id, {
-      include: {
-        model: Blog,
-      },
-    })
-
-    user.blogs = user.blogs.filter((b) => b.id !== request.blog.id)
-
-    await user.save()
-    await request.blog.destroy()
-
-    response.status(204).end()
+blogsRouter.delete('/:id', blogFinder, userExtractor, async (request, response) => {
+  if (!request.user || request.blog.user?.id.toString() !== request.user.id.toString()) {
+    return response.status(401).json({ error: 'operation not permitted' })
   }
-)
+
+  const user = await User.findByPk(request.user.id, {
+    include: {
+      model: Blog,
+    },
+  })
+
+  user.blogs = user.blogs.filter(b => b.id !== request.blog.id)
+
+  await user.save()
+  await request.blog.destroy()
+
+  response.status(204).end()
+})
 
 module.exports = blogsRouter
