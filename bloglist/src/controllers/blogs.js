@@ -5,8 +5,10 @@ const { Blog, User } = require('../models/')
 
 const blogFinder = async (request, res, next) => {
   request.blog = await Blog.findByPk(request.params.id, {
+    attributes: { exclude: ['userId', 'user_id'] },
     include: {
       model: User,
+      attributes: ['id', 'username', 'name'],
     },
   })
   next()
@@ -14,10 +16,10 @@ const blogFinder = async (request, res, next) => {
 
 blogsRouter.get('/', userExtractor, async (request, response) => {
   const blogs = await Blog.findAll({
-    attributes: { exclude: ['user_id'] },
+    attributes: { exclude: ['user_id', 'userId'] },
     include: {
       model: User,
-      attributes: ['name'],
+      attributes: ['name', 'id'],
     },
     where: {
       user_id: request.user.id,

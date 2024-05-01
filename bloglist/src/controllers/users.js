@@ -1,5 +1,5 @@
 const usersRouter = require('express').Router()
-const { User, Blog, ReadingList } = require('../models/')
+const { User, Blog } = require('../models/')
 const { userExtractor } = require('../utils/middleware')
 
 usersRouter.get('/', async (request, response) => {
@@ -7,14 +7,20 @@ usersRouter.get('/', async (request, response) => {
   response.json(users)
 })
 
-usersRouter.get('/:id', async (request, response) => {
+usersRouter.get('/:id', userExtractor, async (request, response) => {
   const user = await User.findByPk(request.params.id, {
     attributes: ['name', 'username'],
-    include: {
-      model: Blog,
-      as: 'readings',
-      attributes: ['id', 'url', 'title', 'author', 'likes', 'year'],
-    },
+    include: [
+      {
+        model: Blog,
+        as: 'readings',
+        attributes: {
+          include: ['id', 'url', 'title', 'author', 'likes', 'year'],
+          exclude: ['user_id', 'created_at', 'updated_at'],
+        },
+        through: { as: 'readinglists', attributes: ['is_read', 'id'] },
+      },
+    ],
   })
 
   if (user) {
@@ -24,7 +30,7 @@ usersRouter.get('/:id', async (request, response) => {
   }
 })
 
-usersRouter.put('/:username', async (request, response) => {
+usersRouter.put('/:username', userExtractor, async (request, response) => {
   const user = await User.findOne({
     where: {
       username: request.params.username,
