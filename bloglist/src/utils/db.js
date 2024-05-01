@@ -15,9 +15,6 @@ const migrator = new Umzug({
 })
 
 const runMigrations = async () => {
-  // await sequelize.drop({ cascade: true })
-  // console.log('All tables dropped!')
-
   const migrations = await migrator.up()
   console.log('Migrations up to date', {
     files: migrations.map((mig) => mig.name),
@@ -79,7 +76,7 @@ const createSeed = async () => {
       created_at: new Date(),
     },
   ])
-  await sequelize.getQueryInterface().bulkInsert('reading_list', [
+  await sequelize.getQueryInterface().bulkInsert('reading_lists', [
     {
       user_id: '1',
       blog_id: '1',
@@ -91,6 +88,7 @@ const createSeed = async () => {
 const connectToDatabase = async () => {
   try {
     await sequelize.authenticate()
+    // await sequelize.drop({ cascade: true })
     // await runMigrations()
     // await createSeed()
     logger.info('connected to the database')
